@@ -1,6 +1,6 @@
 package com.promix.baelui.bind.binder.core
 
-open class CompositeItemBinder<T>(vararg conditionalDataBinders: ConditionalDataBinder<T>) :
+class CompositeItemBinder<T>(vararg conditionalDataBinders: ConditionalDataBinder<T>) :
     ItemBinder<T> {
     private val conditionalDataBinders: List<ConditionalDataBinder<T>> = conditionalDataBinders.toList()
 
