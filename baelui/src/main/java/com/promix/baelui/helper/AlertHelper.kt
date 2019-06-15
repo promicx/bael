@@ -18,7 +18,7 @@ class AlertHelper private constructor(
     private val builder: AlertDialog.Builder,
     private val option: AlertOption
 ) {
-    internal class Builder(private val context: Context) {
+    class Builder(private val context: Context) {
         private val builder = AlertDialog.Builder(context)
         private val alertOption = AlertOption()
 

@@ -6,7 +6,7 @@ import com.promix.baelui.bind.binder.core.ConditionalDataBinder
 import kotlin.reflect.KClass
 
 class ComposeItemBuilder {
-    internal class Builder {
+    class Builder {
         private val binders = mutableListOf<ConditionalDataBinder<BvBase<*>>>()
         fun addItemBinder(clazz: KClass<*>, variable: Int, layout: Int): Builder {
             binders.add(createBinder(clazz, variable, layout))

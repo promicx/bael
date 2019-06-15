@@ -30,6 +30,8 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$APPCOMPAT_VERSION"
     implementation "androidx.core:core-ktx:$APPCOMPAT_VERSION"
     implementation "androidx.constraintlayout:constraintlayout:$CONSTRIANT_VERSION"
+
+    implementation project(path :":baelui")
 }
 
 dependencies {
