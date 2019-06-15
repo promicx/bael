@@ -1,0 +1,80 @@
+apply from: 'constants.gradle'
+buildscript {
+    repositories {
+        google()
+        jcenter()
+
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.4.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+
+    }
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+
+//task clean(type: Delete) {
+//    delete rootProject.buildDir
+//}
+
+allprojects { project ->
+    project.apply from: "$rootDir/constants.gradle"
+    def isLibrary = 'library' == project.name
+    def isSubmodule = submodules.contains(project.name)
+
+    if (isSubmodule || isLibrary) {
+        project.apply plugin: 'com.android.library'
+        android {
+            compileSdkVersion SDK_VERSION as int
+        }
+
+        task sourcesJar(type: Jar) {
+            classifier = 'sources'
+            from android.sourceSets.main.java.srcDirs
+        }
+
+        task javadoc(type: Javadoc) {
+            source = android.sourceSets.main.java.srcDirs
+            classpath += configurations.compile
+            classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        }
+
+        task javadocJar(type: Jar, dependsOn: javadoc) {
+            classifier = 'javadoc'
+            from javadoc.destinationDir
+        }
+
+        artifacts {
+            archives javadocJar
+            archives sourcesJar
+        }
+    }
+}
+
+
+allprojects {
+    afterEvaluate { project ->
+        def isSubmodule = submodules.contains(project.name)
+
+        if (isSubmodule) {
+            def pomTask = "generatePomFileFor${project.name.capitalize()}LibraryPublication"
+            task prepareArtifacts(dependsOn: [javadocJar, sourcesJar, assembleRelease, pomTask]) {}
+        }
+    }
+}
+
