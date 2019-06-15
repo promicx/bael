@@ -33,19 +33,19 @@ class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, items
 
         if (this.items != null) {
             notifyItemRangeRemoved(0, this.items!!.size)
-            this.items!!.removeOnListChangedCallback(onListChangedCallback)
+            this.items?.removeOnListChangedCallback(onListChangedCallback)
         }
 
         when {
             items is ObservableList<*> -> {
                 this.items = items as ObservableList<T>?
-                this.items!!.addOnListChangedCallback(onListChangedCallback)
+                this.items?.addOnListChangedCallback(onListChangedCallback)
                 notifyItemRangeInserted(0, this.items!!.size)
             }
             items != null -> {
                 this.items = ObservableArrayList()
-                this.items!!.addOnListChangedCallback(onListChangedCallback)
-                this.items!!.addAll(items)
+                this.items?.addOnListChangedCallback(onListChangedCallback)
+                this.items?.addAll(items)
             }
             else -> this.items = null
         }
@@ -82,7 +82,7 @@ class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, items
     }
 
     override fun getItemCount(): Int {
-        return if (items == null) 0 else items!!.size
+        return items?.size ?: 0
     }
 
     @Suppress("UNCHECKED_CAST")
