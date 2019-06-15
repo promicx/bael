@@ -5,11 +5,11 @@ import com.promix.baelui.bind.binder.core.CompositeItemBinder
 import com.promix.baelui.bind.binder.core.ConditionalDataBinder
 import kotlin.reflect.KClass
 
-class CompositeItemBuilder {
+class ComposeItemBuilder {
     internal class Builder {
         private val binders = mutableListOf<ConditionalDataBinder<BvBase<*>>>()
-        fun addItemBinder(clazz: KClass<*>, variable: Int, layoutId: Int): Builder {
-            binders.add(createBinder(clazz, variable, layoutId))
+        fun addItemBinder(clazz: KClass<*>, variable: Int, layout: Int): Builder {
+            binders.add(createBinder(clazz, variable, layout))
             return this
         }
 
@@ -22,9 +22,9 @@ class CompositeItemBuilder {
         private fun <T : BvBase<*>> createBinder(
             clazz: KClass<*>,
             variable: Int,
-            layoutId: Int
+            layout: Int
         ): ConditionalDataBinder<T> {
-            return object : ConditionalDataBinder<T>(variable, layoutId) {
+            return object : ConditionalDataBinder<T>(variable, layout) {
                 override fun canHandle(model: T): Boolean {
                     return clazz.java.simpleName == model.javaClass.simpleName
                 }
