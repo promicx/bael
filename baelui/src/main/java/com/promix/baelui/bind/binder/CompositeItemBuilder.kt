@@ -1,12 +1,14 @@
 package com.promix.baelui.bind.binder
 
 import com.promix.baelui.bind.base.BvBase
+import com.promix.baelui.bind.binder.core.CompositeItemBinder
+import com.promix.baelui.bind.binder.core.ConditionalDataBinder
 import kotlin.reflect.KClass
 
-class CompositeItemBuilder : CompositeItemBinder<BvBase<Any>>() {
+class CompositeItemBuilder : CompositeItemBinder<BvBase<*>>() {
     internal class Builder {
-        private val itemsBinder = mutableListOf<ConditionalDataBinder<BvBase<Any>>>()
-        fun addItemBinder(clazz: KClass<BvBase<Any>>, variable: Int, layoutId: Int) {
+        private val itemsBinder = mutableListOf<ConditionalDataBinder<BvBase<*>>>()
+        fun addItemBinder(clazz: KClass<*>, variable: Int, layoutId: Int): Builder {
             itemsBinder.add(
                 createBinder(
                     clazz,
@@ -14,15 +16,20 @@ class CompositeItemBuilder : CompositeItemBinder<BvBase<Any>>() {
                     layoutId
                 )
             )
+            return this
         }
 
-        fun build(): CompositeItemBinder<BvBase<Any>> {
+        fun build(): CompositeItemBinder<BvBase<*>> {
             return CompositeItemBinder(*itemsBinder.toTypedArray())
         }
     }
 
     companion object {
-        fun <T : Any> createBinder(clazz: KClass<T>, variable: Int, layoutId: Int): ConditionalDataBinder<T> {
+        private fun <T : BvBase<*>> createBinder(
+            clazz: KClass<*>,
+            variable: Int,
+            layoutId: Int
+        ): ConditionalDataBinder<T> {
             return object : ConditionalDataBinder<T>(variable, layoutId) {
                 override fun canHandle(model: T): Boolean {
                     return clazz.java.simpleName == model.javaClass.simpleName

@@ -4,7 +4,7 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import com.promix.baelui.bind.adapter.BindingRecyclerViewAdapter
-import com.promix.baelui.bind.binder.ItemBinder
+import com.promix.baelui.bind.binder.core.ItemBinder
 import com.promix.baelui.callback.ClickHandler
 import com.promix.baelui.callback.LongClickHandler
 

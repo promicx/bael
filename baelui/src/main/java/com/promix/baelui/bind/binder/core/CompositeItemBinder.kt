@@ -1,6 +1,7 @@
-package com.promix.baelui.bind.binder
+package com.promix.baelui.bind.binder.core
 
-open class CompositeItemBinder<T>(vararg conditionalDataBinders: ConditionalDataBinder<T>) : ItemBinder<T> {
+open class CompositeItemBinder<T>(vararg conditionalDataBinders: ConditionalDataBinder<T>) :
+    ItemBinder<T> {
     private val conditionalDataBinders: List<ConditionalDataBinder<T>> = conditionalDataBinders.toList()
 
     override fun getLayoutRes(model: T): Int {

@@ -8,7 +8,7 @@ import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.promix.baelui.bind.binder.ItemBinder
+import com.promix.baelui.bind.binder.core.ItemBinder
 import com.promix.baelui.callback.ClickHandler
 import com.promix.baelui.callback.LongClickHandler
 import java.lang.ref.WeakReference

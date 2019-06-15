@@ -1,4 +1,4 @@
-package com.promix.baelui.bind.binder
+package com.promix.baelui.bind.binder.core
 
 abstract class ConditionalDataBinder<T>(bindingVariable: Int, layoutId: Int) :
     ItemBinderBase<T>(bindingVariable, layoutId) {
