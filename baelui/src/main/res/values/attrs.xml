@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SegmentGroup">
+        <attr name="slBGDefaultColor" format="color" />
+        <attr name="slFGDefaultColor" format="color" />
+        <attr name="slBGSelectedColor" format="color" />
+        <attr name="slFGSelectedColor" format="color" />
+        <attr name="slCornerRadius" format="dimension" />
+        <attr name="slDivider" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ListTileView">
+        <attr name="lstTitle" format="string" />
+        <attr name="lstSubTitle" format="string" />
+        <attr name="lstTitleAppearance" format="reference" />
+        <attr name="lstSubTitleAppearance" format="reference" />
+        <attr name="lstTitleColor" format="color" />
+        <attr name="lstSubTitleColor" format="color" />
+        <attr name="lstIconStart" format="reference" />
+        <attr name="lstIconEnd" format="reference" />
+    </declare-styleable>
+</resources>

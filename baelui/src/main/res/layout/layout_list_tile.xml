@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackgroundBorderless"
+    android:padding="@dimen/lstPadding">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/lstIconStart"
+        android:layout_width="@dimen/lstIconSize"
+        android:layout_height="@dimen/lstIconSize"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:contentDescription="Icon Start" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/lstTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/lstPadding"
+        android:paddingEnd="@dimen/lstPadding"
+        app:layout_constraintBottom_toTopOf="@id/lstSubTitle"
+        app:layout_constraintEnd_toStartOf="@id/lstIconEnd"
+        app:layout_constraintStart_toEndOf="@id/lstIconStart"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Title" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/lstSubTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/lstPadding"
+        android:paddingEnd="@dimen/lstPadding"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/lstTitle"
+        app:layout_constraintStart_toStartOf="@id/lstTitle"
+        app:layout_constraintTop_toBottomOf="@id/lstTitle"
+        tools:text="SubTitle" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/lstIconEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_navigate_next"
+        tools:contentDescription="Icon End" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
