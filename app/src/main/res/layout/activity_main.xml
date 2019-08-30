@@ -10,14 +10,15 @@
         android:id="@+id/segmentView"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@color/colorPrimary"
+        android:layout_margin="8dp"
+        android:background="@drawable/border_radius_line_all"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:slBGSelectedColor="@color/colorIcon"
+        app:slCornerRadius="@dimen/smCornerRadius"
         app:slDivider="1dp"
-        app:slBGDefaultColor="#ffffff"
-        app:slBGSelectedColor="@color/colorPrimary"
         app:slFGSelectedColor="#ffffff">
 
         <androidx.appcompat.widget.AppCompatTextView

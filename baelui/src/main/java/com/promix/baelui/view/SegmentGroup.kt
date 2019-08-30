@@ -2,8 +2,10 @@ package com.promix.baelui.view
 
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Outline
+import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import android.view.View.OnClickListener
@@ -28,6 +30,8 @@ class SegmentGroup @JvmOverloads constructor(
     private var mCornerRadius = 0f
     private var mLine = 4f
 
+    private var mLinePaint = Paint()
+
     private val mViewClickListener = OnClickListener { v ->
         mSelectedIndex = indexOfChild(v)
         mListener?.onSegmentSelected(v, mSelectedIndex)
@@ -38,15 +42,16 @@ class SegmentGroup @JvmOverloads constructor(
         val a = context.obtainStyledAttributes(attrs, R.styleable.SegmentGroup)
 
         setCornerRadius(a.getDimension(R.styleable.SegmentGroup_slCornerRadius, 0f))
-        setLine(a.getDimension(R.styleable.SegmentGroup_slDivider, 1f))
+        setLine(a.getDimension(R.styleable.SegmentGroup_slDivider, 0f))
 
-        setBGDefaultColor(a.getColor(R.styleable.SegmentGroup_slBGDefaultColor, Color.TRANSPARENT))
         setBGSelectedColor(a.getColor(R.styleable.SegmentGroup_slBGSelectedColor, Color.LTGRAY))
 
         setFGDefaultColor(a.getColor(R.styleable.SegmentGroup_slFGDefaultColor, Color.GRAY))
         setFGSelectedColor(a.getColor(R.styleable.SegmentGroup_slFGSelectedColor, Color.GRAY))
 
         a.recycle()
+
+        mLinePaint.color = mBGSelectedColor
     }
 
     override fun onFinishInflate() {
@@ -55,6 +60,24 @@ class SegmentGroup @JvmOverloads constructor(
             getChildAt(i).setOnClickListener(mViewClickListener)
         }
         invalidateView()
+    }
+
+    override fun dispatchDraw(canvas: Canvas?) {
+        super.dispatchDraw(canvas)
+        if (mLine == 0f) return
+        canvas?.save()
+        for (i in 1 until childCount) {
+            val child = getChildAt(i)
+            val xAt = (child.width * i).toFloat() - (mLine / 2)
+            canvas?.drawLine(
+                xAt,
+                0f,
+                xAt,
+                child.height.toFloat(),
+                mLinePaint
+            )
+        }
+        canvas?.restore()
     }
 
     private fun invalidateView() {
@@ -73,18 +96,7 @@ class SegmentGroup @JvmOverloads constructor(
                 }
                 else -> throw IllegalStateException("Unsupported type of child's view, only TextView and ImageView")
             }
-
-            if (i > 0) {
-                val lp = child.layoutParams as MarginLayoutParams
-                lp.marginStart = mLine.toInt()
-                child.layoutParams = lp
-            }
         }
-    }
-
-    fun setBGDefaultColor(color: Int) {
-        mBGDefaultColor = color
-        invalidateView()
     }
 
     fun setFGDefaultColor(color: Int) {
@@ -110,8 +122,8 @@ class SegmentGroup @JvmOverloads constructor(
 
     fun setLine(line: Float) {
         mLine = line
-        setPadding(mLine.toInt(), mLine.toInt(), mLine.toInt(), mLine.toInt())
-        invalidateView()
+        mLinePaint.strokeWidth = mLine
+        requestLayout()
     }
 
     private fun clipRound(view: View?, radius: Float) {

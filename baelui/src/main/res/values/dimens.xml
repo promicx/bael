@@ -2,4 +2,5 @@
 <resources>
     <dimen name="lstPadding">4dp</dimen>
     <dimen name="lstIconSize">30dp</dimen>
+    <dimen name="smCornerRadius">8dp</dimen>
 </resources>
