@@ -64,12 +64,10 @@ class SegmentGroup @JvmOverloads constructor(
             val child = getChildAt(i)
             when (child) {
                 is TextView -> {
-                    clipRound(child, mCornerRadius)
                     child.setBackgroundColor(bgColor)
                     child.setTextColor(fgColor)
                 }
                 is ImageView -> {
-                    clipRound(child, mCornerRadius)
                     child.setBackgroundColor(bgColor)
                     child.imageTintList = ColorStateList.valueOf(fgColor)
                 }
