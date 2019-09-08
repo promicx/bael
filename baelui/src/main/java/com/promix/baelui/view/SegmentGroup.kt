@@ -38,6 +38,9 @@ class SegmentGroup @JvmOverloads constructor(
         invalidateView()
     }
 
+    val currentSelected: Int
+        get() = mSelectedIndex
+
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.SegmentGroup)
 
@@ -78,6 +81,11 @@ class SegmentGroup @JvmOverloads constructor(
             )
         }
         canvas?.restore()
+    }
+
+    fun setCurrentSelected(selectedIndex: Int) {
+        mSelectedIndex = selectedIndex
+        invalidateView()
     }
 
     private fun invalidateView() {
