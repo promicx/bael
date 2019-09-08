@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <declare-styleable name="AppToolBar">
+        <attr name="menu" format="reference" />
+    </declare-styleable>
+
     <declare-styleable name="SegmentGroup">
         <attr name="slFGDefaultColor" format="color" />
         <attr name="slBGSelectedColor" format="color" />
