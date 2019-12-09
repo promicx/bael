@@ -6,7 +6,7 @@ import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
 import java.util.*
 
-abstract class BvBases<T : BvBase<*>> : BaseObservable() {
+abstract class VmBases<T : VmBase<*>> : BaseObservable() {
     @Bindable
     var items: ObservableList<T> = ObservableArrayList()
     private val tempItems: ObservableList<T>
@@ -32,15 +32,13 @@ abstract class BvBases<T : BvBase<*>> : BaseObservable() {
 
     @Throws(Exception::class)
     open fun getItem(pos: Int): T {
-        if (items.size == 0)
-            throw IllegalStateException("Item size is 0.")
+        check(items.size != 0) { "Item size is 0." }
         return items[pos]
     }
 
     @Throws(Exception::class)
     open fun remove(item: T) {
-        if (items.size == 0)
-            throw IllegalStateException("Item size is 0.")
+        check(items.size != 0) { "Item size is 0." }
         items.remove(item)
     }
 

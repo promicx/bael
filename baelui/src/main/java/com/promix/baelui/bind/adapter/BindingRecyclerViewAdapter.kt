@@ -13,10 +13,10 @@ import com.promix.baelui.callback.ClickHandler
 import com.promix.baelui.callback.LongClickHandler
 import java.lang.ref.WeakReference
 
-class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, items: Collection<T>?) :
+open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, items: Collection<T>?) :
     RecyclerView.Adapter<BindingRecyclerViewAdapter.ViewHolder>(), View.OnClickListener, View.OnLongClickListener {
     private val onListChangedCallback: WeakReferenceOnListChangedCallback<T>
-    var items: ObservableList<T>? = null
+    protected var items: ObservableList<T>? = null
     private var inflater: LayoutInflater? = null
     private var clickHandler: ClickHandler<T>? = null
     private var longClickHandler: LongClickHandler<T>? = null
@@ -115,11 +115,7 @@ class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, items
     private class WeakReferenceOnListChangedCallback<T>(bindingRecyclerViewAdapter: BindingRecyclerViewAdapter<T>) :
         ObservableList.OnListChangedCallback<ObservableList<T>>() {
 
-        private val adapterReference: WeakReference<BindingRecyclerViewAdapter<T>>
-
-        init {
-            this.adapterReference = WeakReference(bindingRecyclerViewAdapter)
-        }
+        private val adapterReference: WeakReference<BindingRecyclerViewAdapter<T>> = WeakReference(bindingRecyclerViewAdapter)
 
         override fun onChanged(sender: ObservableList<T>) {
             try {
