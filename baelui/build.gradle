@@ -32,9 +32,13 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$KOTLIN_VERSION"
-    implementation "androidx.appcompat:appcompat:$APPCOMPAT_VERSION"
+    implementation "androidx.appcompat:appcompat:$APPCOMAT_VERSION"
+    implementation "androidx.core:core-ktx:$CORE_KTX_VERSION"
     implementation "com.google.android.material:material:$MATERIAL_VERSION"
     implementation "androidx.constraintlayout:constraintlayout:$CONSTRIANT_VERSION"
+
+    implementation 'com.karumi:dexter:6.0.0'
+    implementation "com.jakewharton.timber:timber:4.7.1"
 }
 
 dependencies {
