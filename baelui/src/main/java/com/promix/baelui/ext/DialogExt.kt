@@ -1,4 +1,4 @@
-package com.prasac.core.ext
+package com.promix.baelui.ext
 
 import android.app.Dialog
 import androidx.lifecycle.Lifecycle
