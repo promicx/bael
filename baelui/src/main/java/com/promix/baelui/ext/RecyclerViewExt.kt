@@ -80,7 +80,7 @@ fun <T : VmBase<*>> RecyclerView.bindItems(
 @Suppress("UNCHECKED_CAST")
 @BindingAdapter("filterBy")
 fun <T : VmBase<*>> RecyclerView.bindFilterBy(
-    predicate: IBindPredicate<T>?
+    predicate: IBindPredicate<T>
 ) {
     if (adapter == null || adapter !is BindingRecyclerViewAdapter<*>) {
         setTag(KEY_FILTER, predicate)

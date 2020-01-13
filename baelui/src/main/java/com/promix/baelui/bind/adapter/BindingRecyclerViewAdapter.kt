@@ -37,10 +37,10 @@ open class BindingRecyclerViewAdapter<T>(
     private var resHandler = Handler()
 
     private val filterRunnable = Runnable {
-        filterResults?.apply {
-            synchronized(this) {
+        filterResults?.let {
+            synchronized(it) {
                 resHandler.post {
-                    setItems(this)
+                    setItems(it)
                     filterResults = null
                 }
 
@@ -85,28 +85,29 @@ open class BindingRecyclerViewAdapter<T>(
         notifyDataSetChanged()
     }
 
-    fun filterBy(predicate: IBindPredicate<T>? = null) {
-        if (predicate == null) {
-            if (backupItems != null)
-                setItems(backupItems)
-            return
-        }
+    fun filterBy(predicate: IBindPredicate<T>) {
+        if (backupItems == null)
+            backupItems = items
 
-        items?.apply {
+        backupItems?.apply {
             synchronized(this) {
                 if (reqHandler == null) {
                     val thread = HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_BACKGROUND)
                     thread.start()
                     reqHandler = Handler(thread.looper)
-                    backupItems = items
                 }
-                filterResults = backupItems?.filter { predicate.condition(it) }
+                filterResults = this.filter { predicate.condition(it) }
 
                 reqHandler?.removeCallbacks(filterRunnable)
                 reqHandler?.removeCallbacks(finnishRunnable)
                 reqHandler?.postDelayed(filterRunnable, 300)
             }
         }
+    }
+
+    fun resetFilter() {
+        if (backupItems == null) return
+        setItems(backupItems)
     }
 
     fun sortBy(comparator: Comparator<T>? = null) {
