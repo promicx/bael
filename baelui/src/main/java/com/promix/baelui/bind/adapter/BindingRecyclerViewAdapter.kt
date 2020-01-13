@@ -86,8 +86,9 @@ open class BindingRecyclerViewAdapter<T>(
     }
 
     fun filterBy(predicate: IBindPredicate<T>? = null) {
-        if (predicate == null || backupItems != null) {
-            setItems(backupItems)
+        if (predicate == null) {
+            if (backupItems != null)
+                setItems(backupItems)
             return
         }
 
@@ -119,7 +120,6 @@ open class BindingRecyclerViewAdapter<T>(
                     val thread = HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_BACKGROUND)
                     thread.start()
                     reqHandler = Handler(thread.looper)
-                    backupItems = items
                 }
 
                 reqHandler?.post {
