@@ -1,5 +1,8 @@
 package com.promix.baelui.bind.adapter
 
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Process
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,15 +14,45 @@ import androidx.recyclerview.widget.RecyclerView
 import com.promix.baelui.bind.binder.core.ItemBinder
 import com.promix.baelui.callback.ClickHandler
 import com.promix.baelui.callback.LongClickHandler
+import com.promix.baelui.helper.IBindPredicate
 import java.lang.ref.WeakReference
+import java.util.*
 
-open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, items: Collection<T>?) :
-    RecyclerView.Adapter<BindingRecyclerViewAdapter.ViewHolder>(), View.OnClickListener, View.OnLongClickListener {
+open class BindingRecyclerViewAdapter<T>(
+    private val itemBinder: ItemBinder<T>,
+    items: Collection<T>?
+) :
+    RecyclerView.Adapter<BindingRecyclerViewAdapter.ViewHolder>(), View.OnClickListener,
+    View.OnLongClickListener {
     private val onListChangedCallback: WeakReferenceOnListChangedCallback<T>
     protected var items: ObservableList<T>? = null
+    private var backupItems: List<T>? = null
+
+    private var filterResults: List<T>? = null
     private var inflater: LayoutInflater? = null
     private var clickHandler: ClickHandler<T>? = null
     private var longClickHandler: LongClickHandler<T>? = null
+
+    private var reqHandler: Handler? = null
+    private var resHandler = Handler()
+
+    private val filterRunnable = Runnable {
+        filterResults?.apply {
+            synchronized(this) {
+                resHandler.post {
+                    setItems(this)
+                    filterResults = null
+                }
+
+                reqHandler?.postDelayed(finnishRunnable, 3000)
+            }
+        }
+    }
+
+    private val finnishRunnable = Runnable {
+        reqHandler?.looper?.quit()
+        reqHandler = null
+    }
 
     init {
         this.onListChangedCallback = WeakReferenceOnListChangedCallback(this)
@@ -52,6 +85,54 @@ open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, 
         notifyDataSetChanged()
     }
 
+    fun filterBy(predicate: IBindPredicate<T>? = null) {
+        if (predicate == null || backupItems != null) {
+            setItems(backupItems)
+            return
+        }
+
+        items?.apply {
+            synchronized(this) {
+                if (reqHandler == null) {
+                    val thread = HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_BACKGROUND)
+                    thread.start()
+                    reqHandler = Handler(thread.looper)
+                    backupItems = items
+                }
+                filterResults = backupItems?.filter { predicate.condition(it) }
+
+                reqHandler?.removeCallbacks(filterRunnable)
+                reqHandler?.removeCallbacks(finnishRunnable)
+                reqHandler?.postDelayed(filterRunnable, 300)
+            }
+        }
+    }
+
+    fun sortBy(comparator: Comparator<T>? = null) {
+        if (comparator == null) {
+            return
+        }
+
+        items?.apply {
+            synchronized(this) {
+                if (reqHandler == null) {
+                    val thread = HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_BACKGROUND)
+                    thread.start()
+                    reqHandler = Handler(thread.looper)
+                    backupItems = items
+                }
+
+                reqHandler?.post {
+                    resHandler.post {
+                        items?.sortWith(comparator)
+                        reqHandler?.postDelayed(finnishRunnable, 3000)
+                    }
+                }
+                reqHandler?.removeCallbacks(finnishRunnable)
+            }
+        }
+    }
+
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         items?.removeOnListChangedCallback(onListChangedCallback)
     }
@@ -61,7 +142,8 @@ open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, 
             inflater = LayoutInflater.from(viewGroup.context)
         }
 
-        val binding = DataBindingUtil.inflate<ViewDataBinding>(inflater!!, layoutId, viewGroup, false)
+        val binding =
+            DataBindingUtil.inflate<ViewDataBinding>(inflater!!, layoutId, viewGroup, false)
         return ViewHolder(binding)
     }
 
@@ -110,12 +192,14 @@ open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, 
         this.longClickHandler = clickHandler
     }
 
-    class ViewHolder internal constructor(internal val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root)
+    class ViewHolder internal constructor(internal val binding: ViewDataBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     private class WeakReferenceOnListChangedCallback<T>(bindingRecyclerViewAdapter: BindingRecyclerViewAdapter<T>) :
         ObservableList.OnListChangedCallback<ObservableList<T>>() {
 
-        private val adapterReference: WeakReference<BindingRecyclerViewAdapter<T>> = WeakReference(bindingRecyclerViewAdapter)
+        private val adapterReference: WeakReference<BindingRecyclerViewAdapter<T>> =
+            WeakReference(bindingRecyclerViewAdapter)
 
         override fun onChanged(sender: ObservableList<T>) {
             try {
@@ -127,7 +211,11 @@ open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, 
 
         }
 
-        override fun onItemRangeChanged(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
+        override fun onItemRangeChanged(
+            sender: ObservableList<T>,
+            positionStart: Int,
+            itemCount: Int
+        ) {
             try {
                 val adapter = adapterReference.get()
                 adapter?.notifyItemRangeChanged(positionStart, itemCount)
@@ -136,17 +224,30 @@ open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, 
             }
         }
 
-        override fun onItemRangeInserted(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
+        override fun onItemRangeInserted(
+            sender: ObservableList<T>,
+            positionStart: Int,
+            itemCount: Int
+        ) {
             val adapter = adapterReference.get()
             adapter?.notifyItemRangeInserted(positionStart, itemCount)
         }
 
-        override fun onItemRangeMoved(sender: ObservableList<T>, fromPosition: Int, toPosition: Int, itemCount: Int) {
+        override fun onItemRangeMoved(
+            sender: ObservableList<T>,
+            fromPosition: Int,
+            toPosition: Int,
+            itemCount: Int
+        ) {
             val adapter = adapterReference.get()
             adapter?.notifyItemMoved(fromPosition, toPosition)
         }
 
-        override fun onItemRangeRemoved(sender: ObservableList<T>, positionStart: Int, itemCount: Int) {
+        override fun onItemRangeRemoved(
+            sender: ObservableList<T>,
+            positionStart: Int,
+            itemCount: Int
+        ) {
             val adapter = adapterReference.get()
             adapter?.notifyItemRangeRemoved(positionStart, itemCount)
         }
@@ -154,5 +255,6 @@ open class BindingRecyclerViewAdapter<T>(private val itemBinder: ItemBinder<T>, 
 
     companion object {
         private const val ITEM_MODEL = -124
+        private const val THREAD_NAME = "FilterThread"
     }
 }

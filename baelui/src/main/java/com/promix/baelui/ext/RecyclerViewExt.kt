@@ -9,7 +9,10 @@ import com.promix.baelui.bind.binder.core.ConditionalDataBinder
 import com.promix.baelui.bind.binder.core.ItemBinder
 import com.promix.baelui.callback.ClickHandler
 import com.promix.baelui.callback.LongClickHandler
+import com.promix.baelui.helper.IBindPredicate
 
+private const val KEY_FILTER = -121
+private const val KEY_SORT = -122
 private const val KEY_ITEMS = -123
 private const val KEY_CLICK_HANDLER = -124
 private const val KEY_LONG_CLICK_HANDLER = -125
@@ -71,6 +74,30 @@ fun <T : VmBase<*>> RecyclerView.bindItems(
         setTag(KEY_ITEMS, items)
     } else {
         (adapter as BindingRecyclerViewAdapter<T>).setItems(items)
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+@BindingAdapter("filterBy")
+fun <T : VmBase<*>> RecyclerView.bindFilterBy(
+    predicate: IBindPredicate<T>?
+) {
+    if (adapter == null || adapter !is BindingRecyclerViewAdapter<*>) {
+        setTag(KEY_FILTER, predicate)
+    } else {
+        (adapter as BindingRecyclerViewAdapter<T>).filterBy(predicate)
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+@BindingAdapter("sortBy")
+fun <T : VmBase<*>> RecyclerView.bindSortBy(
+    comparator: Comparator<T>?
+) {
+    if (adapter == null || adapter !is BindingRecyclerViewAdapter<*>) {
+        setTag(KEY_SORT, comparator)
+    } else {
+        (adapter as BindingRecyclerViewAdapter<T>).sortBy(comparator)
     }
 }
 

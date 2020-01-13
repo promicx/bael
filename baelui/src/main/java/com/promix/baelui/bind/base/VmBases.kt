@@ -46,16 +46,6 @@ abstract class VmBases<T : VmBase<*>> : BaseObservable() {
         items.clear()
     }
 
-    protected open fun filterBy(predicate: Prediction<T>) {
-        if (tempItems.size == 0)
-            tempItems.addAll(items)
-        val filtered = items.filter {
-            predicate.test(it)
-        }
-        items.clear()
-        items.addAll(filtered)
-    }
-
     protected open fun sortBy(comparator: Comparator<T>) {
         items.sortWith(comparator)
     }
