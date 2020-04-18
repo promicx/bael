@@ -2,6 +2,8 @@ package com.promix.bael
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.promix.baelui.bind.base.VmBase
@@ -33,23 +35,30 @@ class MainActivity : AppCompatActivity() {
         }
         recyclerView.bindItems(items)
 
-        edtSearch.addTextChangedListener {
-            val text = it.toString().toLowerCase()
-            recyclerView.bindFilterBy(object : IBindPredicate<VmFilter> {
-                override fun condition(item: VmFilter): Boolean {
-                    return if (text.isEmpty())
-                        true
-                    else
-                        item.title?.toLowerCase()?.contains(text) ?: false
-                }
-            })
-        }
+        edtSearch.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val text = s.toString().toLowerCase()
+                recyclerView.bindFilterBy(object : IBindPredicate<VmFilter> {
+                    override fun condition(item: VmFilter): Boolean {
+                        return if (text.isEmpty())
+                            true
+                        else
+                            item.title?.toLowerCase()?.contains(text) ?: false
+                    }
+                })
+            }
+        })
     }
 }
 
 class VmFilter(title: String) : VmBase<String>(title) {
-    override fun getUnique(): String {
-        return model
+    override fun getUnique(): Long {
+        return model.hashCode().toLong()
     }
 
     val title: String?

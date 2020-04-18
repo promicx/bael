@@ -10,6 +10,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableArrayList
 import androidx.databinding.ObservableList
 import androidx.databinding.ViewDataBinding
+import androidx.paging.PagedList
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.promix.baelui.bind.base.VmBase
 import com.promix.baelui.bind.binder.core.ItemBinder
@@ -19,16 +22,16 @@ import com.promix.baelui.helper.IBindPredicate
 import java.lang.ref.WeakReference
 import java.util.*
 
-open class BindingRecyclerViewAdapter<T : VmBase<*>>(
-    private val itemBinder: ItemBinder<T>,
-    items: Collection<T>?
-) : RecyclerView.Adapter<BindingRecyclerViewAdapter.ViewHolder>(), View.OnClickListener,
+class BindingPagingRecyclerViewAdapter<T : VmBase<*>>(
+    private val itemBinder: ItemBinder<T>
+) : PagedListAdapter<T, BindingPagingRecyclerViewAdapter.ViewHolder>(compareWith()),
+    View.OnClickListener,
     View.OnLongClickListener {
-    private val onListChangedCallback: WeakReferenceOnListChangedCallback<T>
-    protected var items: ObservableList<T>? = null
-    private var backupItems: List<T>? = null
 
-    private var filterResults: List<T>? = null
+    private var items: PagedList<T>? = null
+    private var backupItems: PagedList<T>? = null
+
+    private var filterResults: PagedList<T>? = null
     private var inflater: LayoutInflater? = null
     private var clickHandler: ClickHandler<T>? = null
     private var longClickHandler: LongClickHandler<T>? = null
@@ -40,7 +43,7 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
         filterResults?.let {
             synchronized(it) {
                 resHandler.post {
-                    setItems(it)
+                    submitList(it)
                     filterResults = null
                 }
 
@@ -54,40 +57,9 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
         reqHandler = null
     }
 
-    init {
-        this.onListChangedCallback = WeakReferenceOnListChangedCallback(this)
-        setItems(items)
-    }
-
     override fun getItemId(position: Int): Long {
         val item = items?.get(position) ?: return super.getItemId(position)
         return item.getUnique()
-    }
-
-    fun setItems(items: Collection<T>?) {
-        if (this.items === items) {
-            return
-        }
-
-        if (this.items != null) {
-            notifyItemRangeRemoved(0, this.items!!.size)
-            this.items?.removeOnListChangedCallback(onListChangedCallback)
-        }
-
-        when {
-            items is ObservableList<*> -> {
-                this.items = items as ObservableList<T>?
-                this.items?.addOnListChangedCallback(onListChangedCallback)
-                notifyItemRangeInserted(0, this.items!!.size)
-            }
-            items != null -> {
-                this.items = ObservableArrayList()
-                this.items?.addOnListChangedCallback(onListChangedCallback)
-                this.items?.addAll(items)
-            }
-            else -> this.items = null
-        }
-        notifyDataSetChanged()
     }
 
     fun filterBy(predicate: IBindPredicate<T>) {
@@ -101,7 +73,7 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
                     thread.start()
                     reqHandler = Handler(thread.looper)
                 }
-                filterResults = this.filter { predicate.condition(it) }
+                filterResults = this.filter { predicate.condition(it) } as? PagedList<T>
 
                 reqHandler?.removeCallbacks(filterRunnable)
                 reqHandler?.removeCallbacks(finnishRunnable)
@@ -112,7 +84,7 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
 
     fun resetFilter() {
         if (backupItems == null) return
-        setItems(backupItems)
+        submitList(backupItems)
     }
 
     fun sortBy(comparator: Comparator<T>? = null) {
@@ -139,10 +111,6 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
         }
     }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        items?.removeOnListChangedCallback(onListChangedCallback)
-    }
-
     override fun onCreateViewHolder(viewGroup: ViewGroup, layoutId: Int): ViewHolder {
         if (inflater == null) {
             inflater = LayoutInflater.from(viewGroup.context)
@@ -166,7 +134,7 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = items?.get(position)?:return RecyclerView.INVALID_TYPE
+        val item = items?.get(position) ?: return RecyclerView.INVALID_TYPE
         return itemBinder.getLayoutRes(item)
     }
 
@@ -202,66 +170,23 @@ open class BindingRecyclerViewAdapter<T : VmBase<*>>(
     class ViewHolder internal constructor(internal val binding: ViewDataBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    private class WeakReferenceOnListChangedCallback<T : VmBase<*>>(bindingRecyclerViewAdapter: BindingRecyclerViewAdapter<T>) :
-        ObservableList.OnListChangedCallback<ObservableList<T>>() {
-
-        private val adapterReference: WeakReference<BindingRecyclerViewAdapter<T>> =
-            WeakReference(bindingRecyclerViewAdapter)
-
-        override fun onChanged(sender: ObservableList<T>) {
-            try {
-                val adapter = adapterReference.get()
-                adapter?.notifyDataSetChanged()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-
-        }
-
-        override fun onItemRangeChanged(
-            sender: ObservableList<T>,
-            positionStart: Int,
-            itemCount: Int
-        ) {
-            try {
-                val adapter = adapterReference.get()
-                adapter?.notifyItemRangeChanged(positionStart, itemCount)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-
-        override fun onItemRangeInserted(
-            sender: ObservableList<T>,
-            positionStart: Int,
-            itemCount: Int
-        ) {
-            val adapter = adapterReference.get()
-            adapter?.notifyItemRangeInserted(positionStart, itemCount)
-        }
-
-        override fun onItemRangeMoved(
-            sender: ObservableList<T>,
-            fromPosition: Int,
-            toPosition: Int,
-            itemCount: Int
-        ) {
-            val adapter = adapterReference.get()
-            adapter?.notifyItemMoved(fromPosition, toPosition)
-        }
-
-        override fun onItemRangeRemoved(
-            sender: ObservableList<T>,
-            positionStart: Int,
-            itemCount: Int
-        ) {
-            val adapter = adapterReference.get()
-            adapter?.notifyItemRangeRemoved(positionStart, itemCount)
-        }
-    }
-
     companion object {
         private const val ITEM_MODEL = -124
         private const val THREAD_NAME = "FilterThread"
+
+        private fun <T : VmBase<*>> compareWith(): DiffUtil.ItemCallback<T> {
+            return object :
+                DiffUtil.ItemCallback<T>() {
+                override fun areItemsTheSame(
+                    oldConcert: T,
+                    newConcert: T
+                ) = oldConcert.getUnique() == newConcert.getUnique()
+
+                override fun areContentsTheSame(
+                    oldConcert: T,
+                    newConcert: T
+                ) = oldConcert == newConcert
+            }
+        }
     }
 }

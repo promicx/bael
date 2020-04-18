@@ -1,7 +1,9 @@
 package com.promix.baelui.ext
 
 import androidx.databinding.BindingAdapter
+import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
+import com.promix.baelui.bind.adapter.BindingPagingRecyclerViewAdapter
 import com.promix.baelui.bind.adapter.BindingRecyclerViewAdapter
 import com.promix.baelui.bind.base.VmBase
 import com.promix.baelui.bind.binder.core.CompositeItemBinder
@@ -82,10 +84,16 @@ fun <T : VmBase<*>> RecyclerView.bindItems(
 fun <T : VmBase<*>> RecyclerView.bindFilterBy(
     predicate: IBindPredicate<T>
 ) {
-    if (adapter == null || adapter !is BindingRecyclerViewAdapter<*>) {
-        setTag(KEY_FILTER, predicate)
-    } else {
-        (adapter as BindingRecyclerViewAdapter<T>).filterBy(predicate)
+    when (adapter) {
+        null -> {
+            setTag(KEY_FILTER, predicate)
+        }
+        is BindingRecyclerViewAdapter<*> -> {
+            (adapter as BindingRecyclerViewAdapter<T>).filterBy(predicate)
+        }
+        is BindingPagingRecyclerViewAdapter<*> -> {
+            (adapter as BindingPagingRecyclerViewAdapter<T>).filterBy(predicate)
+        }
     }
 }
 
@@ -94,10 +102,16 @@ fun <T : VmBase<*>> RecyclerView.bindFilterBy(
 fun <T : VmBase<*>> RecyclerView.bindSortBy(
     comparator: Comparator<T>?
 ) {
-    if (adapter == null || adapter !is BindingRecyclerViewAdapter<*>) {
-        setTag(KEY_SORT, comparator)
-    } else {
-        (adapter as BindingRecyclerViewAdapter<T>).sortBy(comparator)
+    when (adapter) {
+        null -> {
+            setTag(KEY_SORT, comparator)
+        }
+        is BindingRecyclerViewAdapter<*> -> {
+            (adapter as BindingRecyclerViewAdapter<T>).sortBy(comparator)
+        }
+        is BindingPagingRecyclerViewAdapter<*> -> {
+            (adapter as BindingPagingRecyclerViewAdapter<T>).sortBy(comparator)
+        }
     }
 }
 

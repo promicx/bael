@@ -6,7 +6,6 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion SDK_VERSION as int
 
-
     defaultConfig {
         minSdkVersion MIN_SDK_VERSION as int
         targetSdkVersion SDK_VERSION as int
@@ -37,11 +36,14 @@ dependencies {
     implementation "com.google.android.material:material:$MATERIAL_VERSION"
     implementation "androidx.constraintlayout:constraintlayout:$CONSTRIANT_VERSION"
 
+    implementation "androidx.paging:paging-runtime:$PAGING_VERSION"
+
     implementation "com.jakewharton.timber:timber:4.7.1"
 }
 
 dependencies {
     testImplementation "junit:junit:$JUNIT_VERSION"
+    testImplementation "androidx.paging:paging-common:$PAGING_VERSION"
     androidTestImplementation "androidx.test:runner:$RUNNER_VERSION"
     androidTestImplementation "androidx.test.espresso:espresso-core:$EXPRESSO_VERSION"
 }
