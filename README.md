@@ -17,6 +17,6 @@ allprojects {
 }
 Step 2. Add the dependency
 
-dependencies {
-	implementation 'com.github.promicx:bael:2.9-beta'
-}
+	dependencies {
+		implementation 'com.github.promicx:bael:2.9-beta'
+	}
