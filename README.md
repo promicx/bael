@@ -9,14 +9,14 @@ sbt
 leiningen
 Add it in your root build.gradle at the end of repositories:
 
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
 	}
+}
 Step 2. Add the dependency
 
-	dependencies {
-	        implementation 'com.github.promicx:bael:2.9-beta'
-	}
+dependencies {
+	implementation 'com.github.promicx:bael:2.9-beta'
+}
