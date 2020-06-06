@@ -18,5 +18,5 @@ Add it in your root build.gradle at the end of repositories:
 Step 2. Add the dependency
 
 	dependencies {
-	        implementation 'com.github.promicx:bael:release'
+	        implementation 'com.github.promicx:bael:(https://jitpack.io/#promicx/bael)'
 	}
